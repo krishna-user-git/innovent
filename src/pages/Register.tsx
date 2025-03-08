@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
-import { Github, Mail } from "lucide-react";
+import { Github } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -18,7 +18,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { register, isAuthenticated } = useAuth();
+  const { register, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -52,6 +52,15 @@ const Register = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      // The user will be redirected to Google, and then back to the app
+    } catch (error) {
+      // Error is handled in the auth context
+    }
+  };
+
   return (
     <Layout>
       <div className="container flex items-center justify-center py-16 md:py-24">
@@ -69,8 +78,16 @@ const Register = () => {
                   <Github className="mr-2 h-4 w-4" />
                   GitHub
                 </Button>
-                <Button type="button" variant="outline" className="w-full">
-                  <Mail className="mr-2 h-4 w-4" />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleGoogleLogin}
+                >
+                  {/* Use Google icon */}
+                  <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+                    <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="currentColor"/>
+                  </svg>
                   Google
                 </Button>
               </div>
