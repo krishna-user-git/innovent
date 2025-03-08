@@ -13,7 +13,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -36,6 +36,16 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      // The user will be redirected to Google, and then back to the app
+      // No need to navigate here as the OAuth flow handles the redirect
+    } catch (error) {
+      // Error is handled in the auth context
+    }
+  };
+
   return (
     <Layout>
       <div className="container flex items-center justify-center py-16 md:py-24">
@@ -53,7 +63,12 @@ const Login = () => {
                   <Github className="mr-2 h-4 w-4" />
                   GitHub
                 </Button>
-                <Button type="button" variant="outline" className="w-full">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleGoogleLogin}
+                >
                   <Mail className="mr-2 h-4 w-4" />
                   Google
                 </Button>
