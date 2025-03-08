@@ -1,73 +1,99 @@
 
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export const Hero = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
-    <section className="py-20 md:py-28">
+    <div className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <div className="flex flex-col justify-center space-y-4">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                Host & Join Events with <span className="text-brand-600">Impact</span>
+                The Ultimate Event Management Platform
               </h1>
               <p className="max-w-[600px] text-gray-500 md:text-xl">
-                EngageHub is the all-in-one platform that makes event organization effortless, attendee engagement seamless, and collaboration natural.
+                EngageHub makes it easy to create, manage, and participate in events
+                of all kinds. From hackathons to conferences, we've got you covered.
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button asChild size="lg" className="font-medium">
-                <Link to="/create-event">Create Your Event <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link to="/events">Explore Events</Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map(id => (
-                  <div key={id} className="inline-block h-8 w-8 rounded-full bg-gray-100 ring-2 ring-white" />
-                ))}
-              </div>
-              <p className="text-gray-500">Join 10,000+ organizers & attendees</p>
+              {isAuthenticated ? (
+                <>
+                  <Button asChild size="lg" className="gap-1">
+                    <Link to="/events">
+                      Explore Events <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/create-event">Create Event</Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild size="lg" className="gap-1">
+                    <Link to="/register">
+                      Get Started <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/login">Sign In</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
-          <div className="mx-auto flex items-center justify-center">
-            <div className="relative h-[350px] w-[350px] sm:h-[400px] sm:w-[400px] lg:h-[450px] lg:w-[450px]">
-              <div className="absolute left-0 top-0 h-[300px] w-[300px] sm:h-[350px] sm:w-[350px] lg:h-[400px] lg:w-[400px] rounded-lg bg-gradient-to-br from-brand-100 to-brand-300 dark:from-brand-900 dark:to-brand-700 animate-float">
-                <div className="absolute inset-1 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur flex flex-col p-6">
-                  <div className="mb-4 flex justify-between items-center">
-                    <div className="font-semibold">Upcoming Hackathon</div>
-                    <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">48 Spots Left</div>
+          <div className="flex items-center justify-center">
+            <div className="relative h-[350px] w-full md:h-[420px] lg:h-[580px]">
+              <div className="absolute left-0 top-0 h-[320px] w-[320px] rounded-full bg-brand-200 opacity-30 blur-3xl"></div>
+              <div className="absolute right-0 top-28 h-[250px] w-[250px] rounded-full bg-indigo-200 opacity-30 blur-3xl"></div>
+              
+              <div className="relative animate-float z-10 mx-auto w-full max-w-[400px] overflow-hidden rounded-2xl bg-white p-4 shadow-2xl border">
+                <div className="space-y-2 pb-4">
+                  <div className="h-10 w-3/4 rounded-lg bg-gray-100"></div>
+                  <div className="h-4 w-1/2 rounded-lg bg-gray-100"></div>
+                </div>
+                <div className="space-y-3 border-t border-gray-200 pt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gray-100"></div>
+                    <div className="space-y-1">
+                      <div className="h-4 w-20 rounded-md bg-gray-100"></div>
+                      <div className="h-3 w-16 rounded-md bg-gray-100"></div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">CloudTech Innovators Challenge</h3>
-                  <p className="text-sm text-gray-500 mb-4">Join the premier hackathon for cloud technology innovation.</p>
-                  <div className="flex items-center gap-2 text-sm mb-4">
-                    <div className="bg-gray-100 px-3 py-1 rounded-full">Remote</div>
-                    <div className="bg-gray-100 px-3 py-1 rounded-full">Aug 15-18</div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gray-100"></div>
+                    <div className="space-y-1">
+                      <div className="h-4 w-24 rounded-md bg-gray-100"></div>
+                      <div className="h-3 w-14 rounded-md bg-gray-100"></div>
+                    </div>
                   </div>
-                  <div className="mt-auto">
-                    <Button size="sm" className="w-full">Register Now</Button>
+                  <div className="space-y-1">
+                    <div className="h-4 w-full rounded-md bg-gray-100"></div>
+                    <div className="h-4 w-3/4 rounded-md bg-gray-100"></div>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <div className="h-8 w-24 rounded-md bg-brand-100"></div>
+                    <div className="h-8 w-24 rounded-md bg-gray-100"></div>
                   </div>
                 </div>
               </div>
-              <div className="absolute right-0 bottom-0 h-[200px] w-[250px] rounded-lg bg-gradient-to-br from-blue-100 to-blue-300 dark:from-blue-900 dark:to-blue-700 animate-float" style={{ animationDelay: "1s" }}>
-                <div className="absolute inset-1 rounded-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur flex flex-col p-4">
-                  <h3 className="text-lg font-bold mb-2">Team Formation</h3>
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {[1, 2, 3, 4, 5, 6].map(id => (
-                      <div key={id} className="h-6 w-6 rounded-full bg-gray-200" />
-                    ))}
+              
+              <div className="absolute -bottom-4 -right-4 z-0 md:bottom-10 md:right-10">
+                <div className="h-44 w-44 rounded-2xl bg-white p-3 shadow-lg border rotate-6">
+                  <div className="h-full w-full rounded-lg bg-gray-100 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full bg-brand-200"></div>
                   </div>
-                  <p className="text-xs text-gray-500">Find the perfect team based on skills and interests.</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
