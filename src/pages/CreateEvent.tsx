@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,16 +7,173 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Calendar as CalendarIcon, Upload } from "lucide-react";
+import { Calendar as CalendarIcon, Upload, Check, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const CreateEvent = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Basic details state
+  const [eventName, setEventName] = useState("");
+  const [eventType, setEventType] = useState("");
+  const [eventFormat, setEventFormat] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [tagline, setTagline] = useState("");
+  const [description, setDescription] = useState("");
+  
+  // Banner image state
+  const [banner, setBanner] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Current tab state
+  const [currentTab, setCurrentTab] = useState("basics");
+  
+  // Handle banner image selection
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file (PNG, JPG, or GIF)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setBanner(file);
+      setBannerPreview(URL.createObjectURL(file));
+    }
+  };
+  
+  // Handle save and continue
+  const handleSaveAndContinue = async () => {
+    // Validation for basic details
+    if (currentTab === "basics") {
+      if (!eventName || !eventType || !eventFormat || !startDate || !endDate || !description) {
+        toast({
+          title: "Missing information",
+          description: "Please fill in all required fields before continuing",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (startDate > endDate) {
+        toast({
+          title: "Invalid date range",
+          description: "End date must be after start date",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Move to next tab
+      setCurrentTab("details");
+    } else if (currentTab === "details") {
+      setCurrentTab("registration");
+    } else if (currentTab === "registration") {
+      setCurrentTab("teams");
+    }
+  };
+  
+  // Handle publish event
+  const handlePublishEvent = async () => {
+    try {
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "You must be logged in to create an event",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setIsUploading(true);
+      
+      // Upload banner image if selected
+      let bannerUrl = null;
+      if (banner) {
+        const fileExt = banner.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        // Upload to storage
+        const { error: uploadError } = await supabase.storage
+          .from('event-banners')
+          .upload(filePath, banner);
+          
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data } = supabase.storage
+          .from('event-banners')
+          .getPublicUrl(filePath);
+          
+        bannerUrl = data.publicUrl;
+      }
+      
+      // Construct event data object
+      const eventData = {
+        name: eventName,
+        type: eventType,
+        format: eventFormat,
+        start_date: startDate?.toISOString(),
+        end_date: endDate?.toISOString(),
+        tagline: tagline,
+        description: description,
+        banner_url: bannerUrl,
+        user_id: user.id,
+        status: "published",
+        created_at: new Date().toISOString(),
+      };
+      
+      // Save event data (would connect to backend/API in real app)
+      // For now, just simulate success and navigate to dashboard
+      toast({
+        title: "Event created!",
+        description: "Your event has been published successfully",
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error publishing event:", error);
+      toast({
+        title: "Failed to create event",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
   
   return (
     <Layout>
@@ -26,7 +182,7 @@ const CreateEvent = () => {
           <h1 className="text-3xl font-bold mb-1">Create Your Event</h1>
           <p className="text-muted-foreground mb-8">Fill out the details below to create your event</p>
           
-          <Tabs defaultValue="basics" className="w-full">
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="basics">Basics</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
@@ -40,13 +196,18 @@ const CreateEvent = () => {
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="eventName">Event Name</Label>
-                      <Input id="eventName" placeholder="e.g., Cloud Innovation Hackathon" />
+                      <Input 
+                        id="eventName" 
+                        placeholder="e.g., Cloud Innovation Hackathon"
+                        value={eventName}
+                        onChange={(e) => setEventName(e.target.value)}
+                      />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label>Event Type</Label>
-                        <Select>
+                        <Select value={eventType} onValueChange={setEventType}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select event type" />
                           </SelectTrigger>
@@ -62,7 +223,7 @@ const CreateEvent = () => {
                       
                       <div className="space-y-2">
                         <Label>Format</Label>
-                        <Select>
+                        <Select value={eventFormat} onValueChange={setEventFormat}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select format" />
                           </SelectTrigger>
@@ -131,27 +292,65 @@ const CreateEvent = () => {
                     
                     <div className="space-y-2">
                       <Label htmlFor="tagline">Tagline</Label>
-                      <Input id="tagline" placeholder="A short, catchy description of your event" />
+                      <Input 
+                        id="tagline" 
+                        placeholder="A short, catchy description of your event"
+                        value={tagline}
+                        onChange={(e) => setTagline(e.target.value)}
+                      />
                       <p className="text-sm text-muted-foreground">This will appear on your event card and landing page.</p>
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="description">Description</Label>
-                      <Textarea id="description" placeholder="Describe your event in detail..." className="min-h-32" />
+                      <Textarea 
+                        id="description" 
+                        placeholder="Describe your event in detail..." 
+                        className="min-h-32"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
                     </div>
                     
                     <div className="space-y-2">
                       <Label>Event Banner</Label>
-                      <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
-                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                        <p className="mb-1 font-medium">Upload an image</p>
-                        <p className="text-xs text-muted-foreground mb-3">PNG, JPG or GIF, max 5MB</p>
-                        <Button size="sm">Choose File</Button>
+                      <div 
+                        className={cn(
+                          "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+                          bannerPreview ? "border-primary" : "border-border hover:border-primary/50"
+                        )}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {bannerPreview ? (
+                          <div className="flex flex-col items-center">
+                            <img 
+                              src={bannerPreview} 
+                              alt="Banner preview" 
+                              className="max-h-48 object-contain mb-2 rounded"
+                            />
+                            <p className="text-sm text-muted-foreground">Click to change image</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center">
+                            <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                            <p className="mb-1 font-medium">Upload an image</p>
+                            <p className="text-xs text-muted-foreground mb-3">PNG, JPG or GIF, max 5MB</p>
+                            <Button size="sm">Choose File</Button>
+                          </div>
+                        )}
+                        
+                        <input 
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleBannerChange}
+                        />
                       </div>
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button>Save & Continue</Button>
+                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -211,7 +410,7 @@ const CreateEvent = () => {
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button>Save & Continue</Button>
+                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -288,7 +487,7 @@ const CreateEvent = () => {
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button>Save & Continue</Button>
+                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -374,7 +573,13 @@ const CreateEvent = () => {
                     
                     <div className="pt-4 flex justify-end space-x-2">
                       <Button variant="outline">Save as Draft</Button>
-                      <Button>Publish Event</Button>
+                      <Button 
+                        onClick={handlePublishEvent}
+                        disabled={isUploading}
+                      >
+                        {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isUploading ? "Publishing..." : "Publish Event"}
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
