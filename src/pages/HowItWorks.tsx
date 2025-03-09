@@ -13,11 +13,11 @@ interface FeatureProps {
 const Feature = ({ icon: Icon, title, description }: FeatureProps) => (
   <div className="flex gap-4">
     <div className="flex-shrink-0 mt-1">
-      <Icon className="h-6 w-6 text-brand-600" />
+      <Icon className="h-6 w-6 text-gold" />
     </div>
     <div>
-      <h3 className="font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 className="font-semibold text-lg mb-2 text-white">{title}</h3>
+      <p className="text-gray-400">{description}</p>
     </div>
   </div>
 );
@@ -63,25 +63,25 @@ const HowItWorks = () => {
 
   return (
     <Layout>
-      <div className="container py-16 md:py-24">
+      <div className="container py-16 md:py-24 bg-gray-950">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">How EngageHub Works</h1>
-          <p className="text-xl text-gray-600">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6 text-white">How InnoVent Works</h1>
+          <p className="text-xl text-gray-400">
             Our platform simplifies every aspect of organizing and participating in events, from registration to team formation to project submission.
           </p>
         </div>
 
         <div className="grid gap-16 md:gap-24">
           <section>
-            <h2 className="text-2xl font-bold mb-6 text-center">For Event Organizers</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center text-white">For Event Organizers</h2>
             <div className="grid gap-12 md:grid-cols-2 mb-12">
               {features.slice(0, 4).map((feature, i) => (
                 <Feature key={i} {...feature} />
               ))}
             </div>
-            <div className="bg-gray-50 rounded-lg p-6 md:p-8">
-              <h3 className="text-xl font-semibold mb-4">Organizer Benefits</h3>
-              <ul className="space-y-3">
+            <div className="bg-gray-900 rounded-lg p-6 md:p-8 border border-gray-800">
+              <h3 className="text-xl font-semibold mb-4 text-white">Organizer Benefits</h3>
+              <ul className="space-y-3 text-gray-300">
                 {[
                   "Save 20+ hours of manual work per event",
                   "Increase participant engagement by 40%",
@@ -90,7 +90,7 @@ const HowItWorks = () => {
                   "Create a professional event experience with minimal effort"
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -99,15 +99,15 @@ const HowItWorks = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold mb-6 text-center">For Participants</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center text-white">For Participants</h2>
             <div className="grid gap-12 md:grid-cols-2 mb-12">
               {features.slice(4).map((feature, i) => (
                 <Feature key={i} {...feature} />
               ))}
             </div>
-            <div className="bg-gray-50 rounded-lg p-6 md:p-8">
-              <h3 className="text-xl font-semibold mb-4">Participant Benefits</h3>
-              <ul className="space-y-3">
+            <div className="bg-gray-900 rounded-lg p-6 md:p-8 border border-gray-800">
+              <h3 className="text-xl font-semibold mb-4 text-white">Participant Benefits</h3>
+              <ul className="space-y-3 text-gray-300">
                 {[
                   "Find events matching your interests and skills",
                   "Connect with like-minded collaborators",
@@ -116,7 +116,7 @@ const HowItWorks = () => {
                   "Discover career opportunities through event networking"
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -126,12 +126,12 @@ const HowItWorks = () => {
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-2xl font-bold mb-6">Ready to Get Started?</h2>
+          <h2 className="text-2xl font-bold mb-6 text-white">Ready to Get Started?</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="bg-gold text-black hover:bg-gold/90">
               <Link to="/create-event">Create an Event</Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="border-gold text-gold hover:bg-gold/10">
               <Link to="/events">Browse Events</Link>
             </Button>
           </div>
