@@ -14,7 +14,7 @@ export const Hero = () => {
           <div className="flex flex-col justify-center space-y-4">
             <div className="flex items-center mb-4">
               <img 
-                src="/logo.jpeg" 
+                src="/logo.png" 
                 alt="InnoVent Logo" 
                 className="h-12 mr-2"
               />
