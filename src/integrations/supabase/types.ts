@@ -9,7 +9,63 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          banner_url: string | null
+          created_at: string | null
+          description: string
+          end_date: string
+          format: string
+          id: string
+          name: string
+          project_submission_deadline: string | null
+          registration_deadline: string | null
+          start_date: string
+          status: string | null
+          tagline: string | null
+          team_formation_deadline: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          banner_url?: string | null
+          created_at?: string | null
+          description: string
+          end_date: string
+          format: string
+          id?: string
+          name: string
+          project_submission_deadline?: string | null
+          registration_deadline?: string | null
+          start_date: string
+          status?: string | null
+          tagline?: string | null
+          team_formation_deadline?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          banner_url?: string | null
+          created_at?: string | null
+          description?: string
+          end_date?: string
+          format?: string
+          id?: string
+          name?: string
+          project_submission_deadline?: string | null
+          registration_deadline?: string | null
+          start_date?: string
+          status?: string | null
+          tagline?: string | null
+          team_formation_deadline?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

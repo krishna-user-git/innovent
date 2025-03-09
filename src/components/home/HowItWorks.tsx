@@ -28,15 +28,15 @@ export const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-16 md:py-24 bg-gray-900">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <div className="inline-block rounded-lg bg-brand-100 px-3 py-1 text-sm text-brand-800">
+            <div className="inline-block rounded-lg bg-gold/20 px-3 py-1 text-sm text-gold">
               Process
             </div>
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">How EngageHub Works</h2>
-            <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">How InnoVent Works</h2>
+            <p className="max-w-[900px] text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               Our simple four-step process makes hosting and participating in events effortless.
             </p>
           </div>
@@ -45,12 +45,12 @@ export const HowItWorks = () => {
           <div className="flex flex-col gap-8">
             {steps.slice(0, 2).map((step) => (
               <div key={step.number} className="flex gap-4">
-                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 text-brand-700 font-bold">
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-gold/20 text-gold font-bold">
                   {step.number}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-gray-500">{step.description}</p>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{step.title}</h3>
+                  <p className="text-gray-400">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -58,19 +58,19 @@ export const HowItWorks = () => {
           <div className="flex flex-col gap-8">
             {steps.slice(2, 4).map((step) => (
               <div key={step.number} className="flex gap-4">
-                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 text-brand-700 font-bold">
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-gold/20 text-gold font-bold">
                   {step.number}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-gray-500">{step.description}</p>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{step.title}</h3>
+                  <p className="text-gray-400">{step.description}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
         <div className="flex justify-center mt-12">
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="bg-gold text-black hover:bg-gold/90">
             <Link to="/how-it-works">Learn More <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>

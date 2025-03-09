@@ -9,7 +9,7 @@ export const Footer = () => {
       <div className="container py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 font-bold text-2xl mb-4">
+            <Link to="/" className="flex items-center gap-0 font-bold text-2xl mb-4">
               <span className="text-white">Inno</span>
               <span className="text-gold">Vent</span>
             </Link>
