@@ -48,49 +48,11 @@ export const Hero = () => {
             </div>
           </div>
           <div className="flex items-center justify-center">
-            <div className="relative h-[350px] w-full md:h-[420px] lg:h-[580px]">
-              <div className="absolute left-0 top-0 h-[320px] w-[320px] rounded-full bg-gold/20 opacity-30 blur-3xl"></div>
-              <div className="absolute right-0 top-28 h-[250px] w-[250px] rounded-full bg-gold/10 opacity-30 blur-3xl"></div>
-              
-              <div className="relative animate-float z-10 mx-auto w-full max-w-[400px] overflow-hidden rounded-2xl bg-gray-800 p-4 shadow-2xl border border-gray-700">
-                <div className="space-y-2 pb-4">
-                  <div className="h-10 w-3/4 rounded-lg bg-gray-700"></div>
-                  <div className="h-4 w-1/2 rounded-lg bg-gray-700"></div>
-                </div>
-                <div className="space-y-3 border-t border-gray-700 pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gray-700"></div>
-                    <div className="space-y-1">
-                      <div className="h-4 w-20 rounded-md bg-gray-700"></div>
-                      <div className="h-3 w-16 rounded-md bg-gray-700"></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gray-700"></div>
-                    <div className="space-y-1">
-                      <div className="h-4 w-24 rounded-md bg-gray-700"></div>
-                      <div className="h-3 w-14 rounded-md bg-gray-700"></div>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="h-4 w-full rounded-md bg-gray-700"></div>
-                    <div className="h-4 w-3/4 rounded-md bg-gray-700"></div>
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <div className="h-8 w-24 rounded-md bg-gold/20"></div>
-                    <div className="h-8 w-24 rounded-md bg-gray-700"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="absolute -bottom-4 -right-4 z-0 md:bottom-10 md:right-10">
-                <div className="h-44 w-44 rounded-2xl bg-gray-800 p-3 shadow-lg border border-gray-700 rotate-6">
-                  <div className="h-full w-full rounded-lg bg-gray-700 flex items-center justify-center">
-                    <div className="h-12 w-12 rounded-full bg-gold/30"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <img 
+              src="/banner.jpg" 
+              alt="InnoVent Banner" 
+              className="w-full rounded-xl shadow-2xl border border-gray-700 z-10"
+            />
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ const Privacy = () => {
           
           <div className="prose prose-invert max-w-none">
             <p className="text-gray-300 mb-6">
-              Last updated: June 1, 2023
+              Last updated: March 1, 2025
             </p>
             
             <h2 className="text-2xl font-bold mt-8 mb-4 text-white">1. Introduction</h2>
@@ -52,7 +52,7 @@ const Privacy = () => {
             
             <h2 className="text-2xl font-bold mt-8 mb-4 text-white">5. Contact Us</h2>
             <p className="text-gray-300 mb-6">
-              If you have any questions about this Privacy Policy, please contact us at privacy@innovent.com.
+              If you have any questions about this Privacy Policy, please contact us at support@innovent.com.
             </p>
           </div>
         </div>

@@ -58,7 +58,7 @@ const Terms = () => {
             
             <h2 className="text-2xl font-bold mt-8 mb-4 text-white">7. Contact Us</h2>
             <p className="text-gray-300 mb-6">
-              If you have any questions about these Terms, please contact us at legal@innovent.com.
+              If you have any questions about these Terms, please contact us at support@innovent.com.
             </p>
           </div>
         </div>

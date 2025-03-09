@@ -21,7 +21,7 @@ const About = () => {
             
             <h2 className="text-2xl font-bold mt-8 mb-4 text-white">Our Story</h2>
             <p className="text-gray-300 mb-6">
-              InnoVent was founded in 2023 by a team of event organizers and tech enthusiasts who saw the need for a comprehensive platform that 
+              InnoVent was founded in 2025 by a team of event organizers and tech enthusiasts who saw the need for a comprehensive platform that 
               could handle the unique challenges of organizing hackathons, workshops, and other collaborative events. 
               After experiencing the limitations of existing tools, we set out to build something better.
             </p>
