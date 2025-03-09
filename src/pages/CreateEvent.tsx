@@ -1,3 +1,4 @@
+
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +42,11 @@ const CreateEvent = () => {
   // Current tab state
   const [currentTab, setCurrentTab] = useState("basics");
   
+  // Registration and team state
+  const [registrationDeadline, setRegistrationDeadline] = useState<Date>();
+  const [teamFormationDeadline, setTeamFormationDeadline] = useState<Date>();
+  const [projectSubmissionDeadline, setProjectSubmissionDeadline] = useState<Date>();
+  
   // Handle banner image selection
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -71,8 +77,8 @@ const CreateEvent = () => {
     }
   };
   
-  // Handle save and continue
-  const handleSaveAndContinue = async () => {
+  // Handle next button click
+  const handleNext = () => {
     // Validation for basic details
     if (currentTab === "basics") {
       if (!eventName || !eventType || !eventFormat || !startDate || !endDate || !description) {
@@ -99,6 +105,88 @@ const CreateEvent = () => {
       setCurrentTab("registration");
     } else if (currentTab === "registration") {
       setCurrentTab("teams");
+    }
+  };
+  
+  // Handle save as draft
+  const handleSaveAsDraft = async () => {
+    try {
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "You must be logged in to save an event",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setIsUploading(true);
+      
+      // Upload banner image if selected
+      let bannerUrl = null;
+      if (banner) {
+        const fileExt = banner.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        // Upload to storage
+        const { error: uploadError } = await supabase.storage
+          .from('event-banners')
+          .upload(filePath, banner);
+          
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data } = supabase.storage
+          .from('event-banners')
+          .getPublicUrl(filePath);
+          
+        bannerUrl = data.publicUrl;
+      }
+      
+      // Construct event data object
+      const eventData = {
+        name: eventName,
+        type: eventType,
+        format: eventFormat,
+        start_date: startDate?.toISOString(),
+        end_date: endDate?.toISOString(),
+        tagline: tagline,
+        description: description,
+        banner_url: bannerUrl,
+        user_id: user.id,
+        status: "draft",
+        created_at: new Date().toISOString(),
+        registration_deadline: registrationDeadline?.toISOString(),
+        team_formation_deadline: teamFormationDeadline?.toISOString(),
+        project_submission_deadline: projectSubmissionDeadline?.toISOString(),
+      };
+      
+      // Save to events table
+      const { error, data } = await supabase
+        .from('events')
+        .insert(eventData)
+        .select();
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Draft saved!",
+        description: "Your event has been saved as a draft",
+      });
+      
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      toast({
+        title: "Failed to save draft",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
   
@@ -153,16 +241,25 @@ const CreateEvent = () => {
         user_id: user.id,
         status: "published",
         created_at: new Date().toISOString(),
+        registration_deadline: registrationDeadline?.toISOString(),
+        team_formation_deadline: teamFormationDeadline?.toISOString(),
+        project_submission_deadline: projectSubmissionDeadline?.toISOString(),
       };
       
-      // Save event data (would connect to backend/API in real app)
-      // For now, just simulate success and navigate to dashboard
+      // Save to events table
+      const { error, data } = await supabase
+        .from('events')
+        .insert(eventData)
+        .select();
+        
+      if (error) throw error;
+      
       toast({
-        title: "Event created!",
+        title: "Event published!",
         description: "Your event has been published successfully",
       });
       
-      navigate("/dashboard");
+      navigate("/events");
     } catch (error) {
       console.error("Error publishing event:", error);
       toast({
@@ -175,23 +272,40 @@ const CreateEvent = () => {
     }
   };
   
+  // Add custom registration question
+  const [customQuestions, setCustomQuestions] = useState<string[]>([]);
+  const [newCustomQuestion, setNewCustomQuestion] = useState("");
+  
+  const addCustomQuestion = () => {
+    if (newCustomQuestion.trim()) {
+      setCustomQuestions([...customQuestions, newCustomQuestion.trim()]);
+      setNewCustomQuestion("");
+      
+      // Show confirmation toast
+      toast({
+        title: "Question added",
+        description: "Custom question has been added to registration form",
+      });
+    }
+  };
+  
   return (
     <Layout>
-      <div className="container py-12">
+      <div className="container py-12 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-1">Create Your Event</h1>
-          <p className="text-muted-foreground mb-8">Fill out the details below to create your event</p>
+          <p className="text-gray-400 mb-8">Fill out the details below to create your event</p>
           
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="basics">Basics</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="registration">Registration</TabsTrigger>
-              <TabsTrigger value="teams">Teams</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+              <TabsTrigger value="basics" className="data-[state=active]:bg-gray-700">Basics</TabsTrigger>
+              <TabsTrigger value="details" className="data-[state=active]:bg-gray-700">Details</TabsTrigger>
+              <TabsTrigger value="registration" className="data-[state=active]:bg-gray-700">Registration</TabsTrigger>
+              <TabsTrigger value="teams" className="data-[state=active]:bg-gray-700">Teams</TabsTrigger>
             </TabsList>
             
             <TabsContent value="basics" className="mt-6">
-              <Card>
+              <Card className="bg-gray-800 border-gray-700">
                 <CardContent className="pt-6">
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -201,6 +315,7 @@ const CreateEvent = () => {
                         placeholder="e.g., Cloud Innovation Hackathon"
                         value={eventName}
                         onChange={(e) => setEventName(e.target.value)}
+                        className="bg-gray-700 border-gray-600"
                       />
                     </div>
                     
@@ -208,10 +323,10 @@ const CreateEvent = () => {
                       <div className="space-y-2">
                         <Label>Event Type</Label>
                         <Select value={eventType} onValueChange={setEventType}>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-gray-700 border-gray-600">
                             <SelectValue placeholder="Select event type" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-gray-700 border-gray-600">
                             <SelectItem value="hackathon">Hackathon</SelectItem>
                             <SelectItem value="workshop">Workshop</SelectItem>
                             <SelectItem value="conference">Conference</SelectItem>
@@ -224,10 +339,10 @@ const CreateEvent = () => {
                       <div className="space-y-2">
                         <Label>Format</Label>
                         <Select value={eventFormat} onValueChange={setEventFormat}>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-gray-700 border-gray-600">
                             <SelectValue placeholder="Select format" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-gray-700 border-gray-600">
                             <SelectItem value="in-person">In-person</SelectItem>
                             <SelectItem value="virtual">Virtual</SelectItem>
                             <SelectItem value="hybrid">Hybrid</SelectItem>
@@ -244,20 +359,21 @@ const CreateEvent = () => {
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !startDate && "text-muted-foreground"
+                                "w-full justify-start text-left font-normal bg-gray-700 border-gray-600",
+                                !startDate && "text-gray-400"
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {startDate ? format(startDate, "PPP") : "Select start date"}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
+                          <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
                             <Calendar
                               mode="single"
                               selected={startDate}
                               onSelect={setStartDate}
                               initialFocus
+                              className="bg-gray-700"
                             />
                           </PopoverContent>
                         </Popover>
@@ -270,20 +386,21 @@ const CreateEvent = () => {
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !endDate && "text-muted-foreground"
+                                "w-full justify-start text-left font-normal bg-gray-700 border-gray-600",
+                                !endDate && "text-gray-400"
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {endDate ? format(endDate, "PPP") : "Select end date"}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
+                          <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
                             <Calendar
                               mode="single"
                               selected={endDate}
                               onSelect={setEndDate}
                               initialFocus
+                              className="bg-gray-700"
                             />
                           </PopoverContent>
                         </Popover>
@@ -297,8 +414,9 @@ const CreateEvent = () => {
                         placeholder="A short, catchy description of your event"
                         value={tagline}
                         onChange={(e) => setTagline(e.target.value)}
+                        className="bg-gray-700 border-gray-600"
                       />
-                      <p className="text-sm text-muted-foreground">This will appear on your event card and landing page.</p>
+                      <p className="text-sm text-gray-400">This will appear on your event card and landing page.</p>
                     </div>
                     
                     <div className="space-y-2">
@@ -306,7 +424,7 @@ const CreateEvent = () => {
                       <Textarea 
                         id="description" 
                         placeholder="Describe your event in detail..." 
-                        className="min-h-32"
+                        className="min-h-32 bg-gray-700 border-gray-600"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                       />
@@ -317,7 +435,7 @@ const CreateEvent = () => {
                       <div 
                         className={cn(
                           "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
-                          bannerPreview ? "border-primary" : "border-border hover:border-primary/50"
+                          bannerPreview ? "border-gold" : "border-gray-600 hover:border-gold/50"
                         )}
                         onClick={() => fileInputRef.current?.click()}
                       >
@@ -328,14 +446,14 @@ const CreateEvent = () => {
                               alt="Banner preview" 
                               className="max-h-48 object-contain mb-2 rounded"
                             />
-                            <p className="text-sm text-muted-foreground">Click to change image</p>
+                            <p className="text-sm text-gray-400">Click to change image</p>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center">
                             <Upload className="h-8 w-8 text-gray-400 mb-2" />
                             <p className="mb-1 font-medium">Upload an image</p>
-                            <p className="text-xs text-muted-foreground mb-3">PNG, JPG or GIF, max 5MB</p>
-                            <Button size="sm">Choose File</Button>
+                            <p className="text-xs text-gray-400 mb-3">PNG, JPG or GIF, max 5MB</p>
+                            <Button size="sm" className="bg-gold hover:bg-gold/90 text-gray-900">Choose File</Button>
                           </div>
                         )}
                         
@@ -350,7 +468,7 @@ const CreateEvent = () => {
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
+                      <Button onClick={handleNext} className="bg-gold hover:bg-gold/90 text-gray-900">Next</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -358,22 +476,22 @@ const CreateEvent = () => {
             </TabsContent>
             
             <TabsContent value="details" className="mt-6">
-              <Card>
+              <Card className="bg-gray-800 border-gray-700">
                 <CardContent className="pt-6">
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="website">Website URL (Optional)</Label>
-                      <Input id="website" placeholder="https://yourevent.com" />
+                      <Input id="website" placeholder="https://yourevent.com" className="bg-gray-700 border-gray-600" />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label>Location Type</Label>
                         <Select>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-gray-700 border-gray-600">
                             <SelectValue placeholder="Select location type" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-gray-700 border-gray-600">
                             <SelectItem value="venue">Physical Venue</SelectItem>
                             <SelectItem value="virtual">Virtual Platform</SelectItem>
                             <SelectItem value="hybrid">Both (Hybrid)</SelectItem>
@@ -383,7 +501,7 @@ const CreateEvent = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="location">Location Details</Label>
-                        <Input id="location" placeholder="Address or virtual platform link" />
+                        <Input id="location" placeholder="Address or virtual platform link" className="bg-gray-700 border-gray-600" />
                       </div>
                     </div>
                     
@@ -392,7 +510,7 @@ const CreateEvent = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {["AI & Machine Learning", "Web Development", "Mobile", "Cloud", "Blockchain", "IoT", "Data Science", "AR/VR", "Gaming", "Social Impact", "Health", "Education"].map((category) => (
                           <div key={category} className="flex items-center space-x-2">
-                            <Switch id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`} />
+                            <Switch id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`} className="data-[state=checked]:bg-gold" />
                             <Label htmlFor={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}>{category}</Label>
                           </div>
                         ))}
@@ -401,16 +519,16 @@ const CreateEvent = () => {
                     
                     <div className="space-y-2">
                       <Label htmlFor="prizes">Prizes (Optional)</Label>
-                      <Textarea id="prizes" placeholder="Describe the prizes for winners..." />
+                      <Textarea id="prizes" placeholder="Describe the prizes for winners..." className="bg-gray-700 border-gray-600" />
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="sponsors">Sponsors (Optional)</Label>
-                      <Textarea id="sponsors" placeholder="List your event sponsors..." />
+                      <Textarea id="sponsors" placeholder="List your event sponsors..." className="bg-gray-700 border-gray-600" />
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
+                      <Button onClick={handleNext} className="bg-gold hover:bg-gold/90 text-gray-900">Next</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -418,16 +536,16 @@ const CreateEvent = () => {
             </TabsContent>
             
             <TabsContent value="registration" className="mt-6">
-              <Card>
+              <Card className="bg-gray-800 border-gray-700">
                 <CardContent className="pt-6">
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <Label>Registration Type</Label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-gray-700 border-gray-600">
                           <SelectValue placeholder="Select registration type" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-700 border-gray-600">
                           <SelectItem value="open">Open Registration</SelectItem>
                           <SelectItem value="approval">Approval Required</SelectItem>
                           <SelectItem value="invite">Invite Only</SelectItem>
@@ -438,7 +556,7 @@ const CreateEvent = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="maxParticipants">Maximum Participants</Label>
-                        <Input id="maxParticipants" type="number" placeholder="e.g., 100" />
+                        <Input id="maxParticipants" type="number" placeholder="e.g., 100" className="bg-gray-700 border-gray-600" />
                       </div>
                       
                       <div className="space-y-2">
@@ -447,14 +565,23 @@ const CreateEvent = () => {
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full justify-start text-left font-normal text-muted-foreground"
+                              className={cn(
+                                "w-full justify-start text-left font-normal bg-gray-700 border-gray-600",
+                                !registrationDeadline && "text-gray-400"
+                              )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              Select deadline date
+                              {registrationDeadline ? format(registrationDeadline, "PPP") : "Select deadline date"}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar mode="single" initialFocus />
+                          <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
+                            <Calendar
+                              mode="single"
+                              selected={registrationDeadline}
+                              onSelect={setRegistrationDeadline}
+                              initialFocus
+                              className="bg-gray-700"
+                            />
                           </PopoverContent>
                         </Popover>
                       </div>
@@ -464,30 +591,57 @@ const CreateEvent = () => {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="fee">Registration Fee</Label>
                         <div className="flex items-center space-x-2">
-                          <Switch id="isFree" defaultChecked />
+                          <Switch id="isFree" defaultChecked className="data-[state=checked]:bg-gold" />
                           <Label htmlFor="isFree">Free event</Label>
                         </div>
                       </div>
-                      <Input id="fee" type="number" placeholder="0.00" disabled />
-                      <p className="text-sm text-muted-foreground">For paid events, you'll need to set up payment methods in the next step.</p>
+                      <Input id="fee" type="number" placeholder="0.00" disabled className="bg-gray-700 border-gray-600" />
+                      <p className="text-sm text-gray-400">For paid events, you'll need to set up payment methods in the next step.</p>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       <Label>Custom Registration Questions</Label>
-                      <p className="text-sm text-muted-foreground mb-2">Add questions you want participants to answer during registration.</p>
-                      <Button variant="outline" className="w-full">+ Add Question</Button>
+                      <p className="text-sm text-gray-400 mb-2">Add questions you want participants to answer during registration.</p>
+                      
+                      {customQuestions.length > 0 && (
+                        <div className="space-y-2 mb-4">
+                          <p className="font-medium">Current Questions:</p>
+                          <ul className="space-y-1 pl-5 list-disc">
+                            {customQuestions.map((question, index) => (
+                              <li key={index} className="text-gray-300">{question}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Enter a custom question..." 
+                          value={newCustomQuestion}
+                          onChange={(e) => setNewCustomQuestion(e.target.value)}
+                          className="bg-gray-700 border-gray-600 flex-1"
+                        />
+                        <Button 
+                          type="button" 
+                          onClick={addCustomQuestion}
+                          disabled={!newCustomQuestion.trim()}
+                          className="bg-gold hover:bg-gold/90 text-gray-900"
+                        >
+                          Add
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Switch id="collectResumes" />
+                        <Switch id="collectResumes" className="data-[state=checked]:bg-gold" />
                         <Label htmlFor="collectResumes">Collect Resumes/CVs from Participants</Label>
                       </div>
-                      <p className="text-sm text-muted-foreground">Enable this if you want to collect resumes for recruitment purposes.</p>
+                      <p className="text-sm text-gray-400">Enable this if you want to collect resumes for recruitment purposes.</p>
                     </div>
                     
                     <div className="pt-4 flex justify-end">
-                      <Button onClick={handleSaveAndContinue}>Save & Continue</Button>
+                      <Button onClick={handleNext} className="bg-gold hover:bg-gold/90 text-gray-900">Next</Button>
                     </div>
                   </div>
                 </CardContent>
@@ -495,35 +649,35 @@ const CreateEvent = () => {
             </TabsContent>
             
             <TabsContent value="teams" className="mt-6">
-              <Card>
+              <Card className="bg-gray-800 border-gray-700">
                 <CardContent className="pt-6">
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Switch id="enableTeams" defaultChecked />
+                        <Switch id="enableTeams" defaultChecked className="data-[state=checked]:bg-gold" />
                         <Label htmlFor="enableTeams">Enable Team Formation</Label>
                       </div>
-                      <p className="text-sm text-muted-foreground">Allow participants to form or join teams for your event.</p>
+                      <p className="text-sm text-gray-400">Allow participants to form or join teams for your event.</p>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="minTeamSize">Minimum Team Size</Label>
-                        <Input id="minTeamSize" type="number" defaultValue="2" />
+                        <Input id="minTeamSize" type="number" defaultValue="2" className="bg-gray-700 border-gray-600" />
                       </div>
                       
                       <div className="space-y-2">
                         <Label htmlFor="maxTeamSize">Maximum Team Size</Label>
-                        <Input id="maxTeamSize" type="number" defaultValue="5" />
+                        <Input id="maxTeamSize" type="number" defaultValue="5" className="bg-gray-700 border-gray-600" />
                       </div>
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Switch id="teamMatching" />
+                        <Switch id="teamMatching" className="data-[state=checked]:bg-gold" />
                         <Label htmlFor="teamMatching">Enable Smart Team Matching</Label>
                       </div>
-                      <p className="text-sm text-muted-foreground">Help participants find team members based on skills, interests, and goals.</p>
+                      <p className="text-sm text-gray-400">Help participants find team members based on skills, interests, and goals.</p>
                     </div>
                     
                     <div className="space-y-2">
@@ -532,25 +686,34 @@ const CreateEvent = () => {
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal text-muted-foreground"
+                            className={cn(
+                              "w-full justify-start text-left font-normal bg-gray-700 border-gray-600",
+                              !teamFormationDeadline && "text-gray-400"
+                            )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            Select team formation deadline
+                            {teamFormationDeadline ? format(teamFormationDeadline, "PPP") : "Select team formation deadline"}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" initialFocus />
+                        <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
+                          <Calendar
+                            mode="single"
+                            selected={teamFormationDeadline}
+                            onSelect={setTeamFormationDeadline}
+                            initialFocus
+                            className="bg-gray-700"
+                          />
                         </PopoverContent>
                       </Popover>
-                      <p className="text-sm text-muted-foreground">After this date, team formation will be locked.</p>
+                      <p className="text-sm text-gray-400">After this date, team formation will be locked.</p>
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Switch id="projectSubmissions" defaultChecked />
+                        <Switch id="projectSubmissions" defaultChecked className="data-[state=checked]:bg-gold" />
                         <Label htmlFor="projectSubmissions">Enable Project Submissions</Label>
                       </div>
-                      <p className="text-sm text-muted-foreground">Allow teams to submit their projects for review and judging.</p>
+                      <p className="text-sm text-gray-400">Allow teams to submit their projects for review and judging.</p>
                     </div>
                     
                     <div className="space-y-2">
@@ -559,23 +722,41 @@ const CreateEvent = () => {
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-start text-left font-normal text-muted-foreground"
+                            className={cn(
+                              "w-full justify-start text-left font-normal bg-gray-700 border-gray-600",
+                              !projectSubmissionDeadline && "text-gray-400"
+                            )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            Select submission deadline
+                            {projectSubmissionDeadline ? format(projectSubmissionDeadline, "PPP") : "Select submission deadline"}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" initialFocus />
+                        <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600">
+                          <Calendar
+                            mode="single"
+                            selected={projectSubmissionDeadline}
+                            onSelect={setProjectSubmissionDeadline}
+                            initialFocus
+                            className="bg-gray-700"
+                          />
                         </PopoverContent>
                       </Popover>
                     </div>
                     
                     <div className="pt-4 flex justify-end space-x-2">
-                      <Button variant="outline">Save as Draft</Button>
+                      <Button 
+                        variant="outline"
+                        onClick={handleSaveAsDraft}
+                        disabled={isUploading}
+                        className="border-gold text-gold hover:bg-gold/10"
+                      >
+                        {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isUploading ? "Saving..." : "Save Draft"}
+                      </Button>
                       <Button 
                         onClick={handlePublishEvent}
                         disabled={isUploading}
+                        className="bg-gold hover:bg-gold/90 text-gray-900"
                       >
                         {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isUploading ? "Publishing..." : "Publish Event"}

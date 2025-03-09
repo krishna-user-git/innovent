@@ -6,13 +6,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Pricing from "./pages/Pricing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import HowItWorks from "./pages/HowItWorks";
 import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -42,10 +44,12 @@ const App = () => (
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/pricing" element={<Pricing />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
 
             {/* Protected routes */}
             <Route path="/events" element={
