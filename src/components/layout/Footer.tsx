@@ -9,12 +9,16 @@ export const Footer = () => {
       <div className="container py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="flex items-center mb-4">
               <img 
                 src="/lovable-uploads/61aab18e-1c95-46ef-a372-38be01974789.png" 
                 alt="InnoVent Logo" 
-                className="h-12"
+                className="h-8 mr-2"
               />
+              <span className="text-xl font-bold">
+                <span className="text-white">Inno</span>
+                <span className="text-gold">Vent</span>
+              </span>
             </Link>
             <p className="text-gray-400 max-w-md">
               InnoVent is the all-in-one platform for creating, managing, and participating in events that matter.

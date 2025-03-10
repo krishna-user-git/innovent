@@ -54,8 +54,12 @@ export const Navbar = () => {
             <img 
               src="/lovable-uploads/61aab18e-1c95-46ef-a372-38be01974789.png" 
               alt="InnoVent Logo" 
-              className="h-10"
+              className="h-8 mr-2"
             />
+            <span className="text-xl font-bold">
+              <span className="text-white">Inno</span>
+              <span className="text-gold">Vent</span>
+            </span>
           </Link>
           
           {!isMobile && (
@@ -132,12 +136,16 @@ export const Navbar = () => {
               <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-gray-900 text-white border-gray-800">
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between pb-4 border-b border-gray-800">
-                    <Link to="/" onClick={() => setIsOpen(false)}>
+                    <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center">
                       <img 
                         src="/lovable-uploads/61aab18e-1c95-46ef-a372-38be01974789.png" 
                         alt="InnoVent Logo" 
-                        className="h-10"
+                        className="h-8 mr-2"
                       />
+                      <span className="text-xl font-bold">
+                        <span className="text-white">Inno</span>
+                        <span className="text-gold">Vent</span>
+                      </span>
                     </Link>
                     <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                       <X className="h-5 w-5" />
