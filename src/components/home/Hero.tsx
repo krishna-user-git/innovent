@@ -14,14 +14,10 @@ export const Hero = () => {
           <div className="flex flex-col justify-center space-y-4">
             <div className="flex items-center mb-4">
               <img 
-                src="https://i.imgur.com/YXeyx5A.png" 
+                src="/lovable-uploads/61aab18e-1c95-46ef-a372-38be01974789.png" 
                 alt="InnoVent Logo" 
-                className="h-12 mr-2"
+                className="h-16 mr-2"
               />
-              <span className="text-2xl font-bold">
-                <span className="text-white">Inno</span>
-                <span className="text-gold">Vent</span>
-              </span>
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white">
