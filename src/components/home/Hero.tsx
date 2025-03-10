@@ -14,13 +14,9 @@ export const Hero = () => {
           <div className="flex flex-col justify-center space-y-4">
             <div className="flex items-center mb-4">
               <img 
-                src="/logo.png" 
+                src="https://i.imgur.com/YXeyx5A.png" 
                 alt="InnoVent Logo" 
                 className="h-12 mr-2"
-                onError={(e) => {
-                  console.error("Logo image failed to load");
-                  e.currentTarget.src = "https://i.imgur.com/YXeyx5A.png";
-                }}
               />
               <span className="text-2xl font-bold">
                 <span className="text-white">Inno</span>
@@ -64,13 +60,9 @@ export const Hero = () => {
           </div>
           <div className="flex items-center justify-center">
             <img 
-              src="/banner.jpeg" 
+              src="https://i.imgur.com/IxoLl6U.jpeg" 
               alt="InnoVent Banner" 
               className="w-full rounded-xl shadow-2xl border border-gray-700 z-10"
-              onError={(e) => {
-                console.error("Banner image failed to load");
-                e.currentTarget.src = "https://i.imgur.com/IxoLl6U.jpeg";
-              }}
             />
           </div>
         </div>
