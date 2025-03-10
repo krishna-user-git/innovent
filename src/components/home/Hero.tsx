@@ -17,6 +17,10 @@ export const Hero = () => {
                 src="/logo.png" 
                 alt="InnoVent Logo" 
                 className="h-12 mr-2"
+                onError={(e) => {
+                  console.error("Logo image failed to load");
+                  e.currentTarget.src = "https://i.imgur.com/YXeyx5A.png";
+                }}
               />
               <span className="text-2xl font-bold">
                 <span className="text-white">Inno</span>
@@ -63,6 +67,10 @@ export const Hero = () => {
               src="/banner.jpeg" 
               alt="InnoVent Banner" 
               className="w-full rounded-xl shadow-2xl border border-gray-700 z-10"
+              onError={(e) => {
+                console.error("Banner image failed to load");
+                e.currentTarget.src = "https://i.imgur.com/IxoLl6U.jpeg";
+              }}
             />
           </div>
         </div>
