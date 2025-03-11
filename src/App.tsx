@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
 import CreateEvent from "./pages/CreateEvent";
 import HowItWorks from "./pages/HowItWorks";
 import Dashboard from "./pages/Dashboard";
@@ -55,6 +56,11 @@ const App = () => (
             <Route path="/events" element={
               <ProtectedRoute>
                 <Events />
+              </ProtectedRoute>
+            } />
+            <Route path="/events/:id" element={
+              <ProtectedRoute>
+                <EventDetails />
               </ProtectedRoute>
             } />
             <Route path="/create-event" element={
