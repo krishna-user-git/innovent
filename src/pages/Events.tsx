@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarIcon, MapPin, Users } from "lucide-react";
 import { format } from "date-fns";
@@ -24,6 +24,7 @@ const Events = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -39,6 +40,7 @@ const Events = () => {
         if (error) throw error;
         
         setEvents(data);
+        console.log("Fetched events:", data);
       } catch (error) {
         console.error("Error fetching events:", error);
         toast({
@@ -53,6 +55,10 @@ const Events = () => {
     
     fetchEvents();
   }, [toast]);
+
+  const handleViewDetails = (eventId: string) => {
+    navigate(`/events/${eventId}`);
+  };
 
   return (
     <Layout>
@@ -123,11 +129,13 @@ const Events = () => {
                       </span>
                     </div>
                     
-                    <Link to={`/events/${event.id}`}>
-                      <Button variant="outline" className="w-full mt-2 border-gold text-gold hover:bg-gold/10">
-                        View Details
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 border-gold text-gold hover:bg-gold/10"
+                      onClick={() => handleViewDetails(event.id)}
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </div>
               </div>
