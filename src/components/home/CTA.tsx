@@ -16,12 +16,9 @@ export const CTA = () => {
               Join thousands of event organizers who use EngageHub to create memorable experiences and build communities.
             </p>
           </div>
-          <div className="flex flex-col gap-2 min-[400px]:flex-row pt-4">
+          <div className="pt-4">
             <Button asChild size="lg" className="font-medium">
               <Link to="/create-event">Get Started <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link to="/contact">Contact Sales</Link>
             </Button>
           </div>
         </div>
