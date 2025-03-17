@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarIcon, MapPin, Users } from "lucide-react";
+import { CalendarIcon, MapPin, Users, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
 
 interface Event {
   id: string;
@@ -18,6 +19,7 @@ interface Event {
   start_date: string;
   end_date: string;
   created_at: string;
+  is_registered?: boolean;
 }
 
 const Events = () => {
@@ -25,22 +27,42 @@ const Events = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
         
-        const { data, error } = await supabase
+        const { data: eventsData, error: eventsError } = await supabase
           .from('events')
           .select('*')
           .eq('status', 'published')
           .order('start_date', { ascending: true });
         
-        if (error) throw error;
+        if (eventsError) throw eventsError;
         
-        setEvents(data);
-        console.log("Fetched events:", data);
+        // If user is authenticated, check which events they are registered for
+        let eventsWithRegistrationStatus = [...eventsData];
+        
+        if (isAuthenticated && user) {
+          const { data: registrationsData, error: registrationsError } = await supabase
+            .from('event_registrations')
+            .select('event_id')
+            .eq('user_id', user.id);
+            
+          if (registrationsError) throw registrationsError;
+          
+          const registeredEventIds = new Set(registrationsData.map(reg => reg.event_id));
+          
+          eventsWithRegistrationStatus = eventsData.map(event => ({
+            ...event,
+            is_registered: registeredEventIds.has(event.id)
+          }));
+        }
+        
+        setEvents(eventsWithRegistrationStatus);
+        console.log("Fetched events:", eventsWithRegistrationStatus);
       } catch (error) {
         console.error("Error fetching events:", error);
         toast({
@@ -54,7 +76,7 @@ const Events = () => {
     };
     
     fetchEvents();
-  }, [toast]);
+  }, [toast, user, isAuthenticated]);
 
   const handleViewDetails = (eventId: string) => {
     navigate(`/events/${eventId}`);
@@ -129,13 +151,22 @@ const Events = () => {
                       </span>
                     </div>
                     
-                    <Button 
-                      variant="outline" 
-                      className="w-full mt-2 border-gold text-gold hover:bg-gold/10"
-                      onClick={() => handleViewDetails(event.id)}
-                    >
-                      View Details
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 border-gold text-gold hover:bg-gold/10"
+                        onClick={() => handleViewDetails(event.id)}
+                      >
+                        View Details
+                      </Button>
+                      
+                      {event.is_registered && (
+                        <div className="flex items-center text-emerald-500 text-sm font-medium">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          <span>Registered</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

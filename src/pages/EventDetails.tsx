@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CalendarIcon, MapPin, Users } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
 
 interface Event {
   id: string;
@@ -28,7 +29,12 @@ const EventDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [checkingRegistration, setCheckingRegistration] = useState(false);
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -62,6 +68,116 @@ const EventDetails = () => {
     
     fetchEventDetails();
   }, [id, toast]);
+
+  useEffect(() => {
+    const checkRegistration = async () => {
+      if (!isAuthenticated || !user || !event) return;
+      
+      try {
+        setCheckingRegistration(true);
+        
+        const { data, error } = await supabase
+          .from('event_registrations')
+          .select('id')
+          .eq('event_id', event.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) throw error;
+        
+        setIsRegistered(!!data);
+      } catch (error) {
+        console.error("Error checking registration status:", error);
+      } finally {
+        setCheckingRegistration(false);
+      }
+    };
+    
+    checkRegistration();
+  }, [event, user, isAuthenticated]);
+
+  const handleRegister = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to register for this event",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { returnTo: `/events/${id}` } });
+      return;
+    }
+    
+    if (!event) return;
+    
+    try {
+      setRegistering(true);
+      
+      const { error } = await supabase
+        .from('event_registrations')
+        .insert({
+          event_id: event.id,
+          user_id: user!.id,
+        });
+      
+      if (error) throw error;
+      
+      setIsRegistered(true);
+      toast({
+        title: "Registration successful",
+        description: `You're registered for ${event.name}`,
+      });
+    } catch (error: any) {
+      console.error("Error registering for event:", error);
+      
+      // Check if it's a unique_violation error (already registered)
+      if (error.code === '23505') {
+        toast({
+          title: "Already registered",
+          description: "You are already registered for this event",
+        });
+        setIsRegistered(true);
+      } else {
+        toast({
+          title: "Registration failed",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setRegistering(false);
+    }
+  };
+
+  const handleCancelRegistration = async () => {
+    if (!isAuthenticated || !user || !event) return;
+    
+    try {
+      setRegistering(true);
+      
+      const { error } = await supabase
+        .from('event_registrations')
+        .delete()
+        .eq('event_id', event.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setIsRegistered(false);
+      toast({
+        title: "Registration cancelled",
+        description: `You've cancelled your registration for ${event.name}`,
+      });
+    } catch (error) {
+      console.error("Error cancelling registration:", error);
+      toast({
+        title: "Cancellation failed",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   function formatDate(dateString: string) {
     return format(new Date(dateString), "MMM d, yyyy");
@@ -174,9 +290,33 @@ const EventDetails = () => {
               
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
                 <h3 className="text-xl font-semibold mb-4">Join this Event</h3>
-                <Button className="w-full bg-gold hover:bg-gold/90 text-gray-900">
-                  Register for Event
-                </Button>
+                {checkingRegistration ? (
+                  <div className="flex justify-center py-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gold"></div>
+                  </div>
+                ) : isRegistered ? (
+                  <div className="space-y-4">
+                    <div className="bg-gray-700/50 rounded-lg p-3 text-center text-sm text-gray-300">
+                      You're registered for this event
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-red-500 text-red-500 hover:bg-red-500/10"
+                      onClick={handleCancelRegistration}
+                      disabled={registering}
+                    >
+                      {registering ? "Cancelling..." : "Cancel Registration"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    className="w-full bg-gold hover:bg-gold/90 text-gray-900"
+                    onClick={handleRegister}
+                    disabled={registering}
+                  >
+                    {registering ? "Registering..." : "Register for Event"}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
