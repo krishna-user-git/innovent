@@ -40,25 +40,48 @@ const Events = () => {
           .eq('status', 'published')
           .order('start_date', { ascending: true });
         
-        if (eventsError) throw eventsError;
+        if (eventsError) {
+          console.error("Error fetching events:", eventsError);
+          throw eventsError;
+        }
+        
+        if (!eventsData || eventsData.length === 0) {
+          setEvents([]);
+          return;
+        }
         
         // If user is authenticated, check which events they are registered for
         let eventsWithRegistrationStatus = [...eventsData];
         
         if (isAuthenticated && user) {
-          const { data: registrationsData, error: registrationsError } = await supabase
-            .from('event_registrations')
-            .select('event_id')
-            .eq('user_id', user.id);
-            
-          if (registrationsError) throw registrationsError;
-          
-          const registeredEventIds = new Set(registrationsData.map(reg => reg.event_id));
-          
-          eventsWithRegistrationStatus = eventsData.map(event => ({
-            ...event,
-            is_registered: registeredEventIds.has(event.id)
-          }));
+          try {
+            const { data: registrationsData, error: registrationsError } = await supabase
+              .from('event_registrations')
+              .select('event_id')
+              .eq('user_id', user.id);
+              
+            if (registrationsError) {
+              console.error("Error fetching registrations:", registrationsError);
+              // Continue with events but without registration status
+            } else if (registrationsData && registrationsData.length > 0) {
+              const registeredEventIds = new Set(registrationsData.map(reg => reg.event_id));
+              
+              eventsWithRegistrationStatus = eventsData.map(event => ({
+                ...event,
+                is_registered: registeredEventIds.has(event.id)
+              }));
+            } else {
+              // No registrations found, mark all as not registered
+              eventsWithRegistrationStatus = eventsData.map(event => ({
+                ...event,
+                is_registered: false
+              }));
+            }
+          } catch (err) {
+            console.error("Error processing registrations:", err);
+            // Continue with events but without registration status
+            eventsWithRegistrationStatus = eventsData;
+          }
         }
         
         setEvents(eventsWithRegistrationStatus);
