@@ -45,10 +45,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (data.session) {
           const userData = data.session.user;
+          
+          // Extract user name from metadata if available
+          let userName = userData.email?.split('@')[0] || '';
+          
+          if (userData.user_metadata && userData.user_metadata.name) {
+            userName = userData.user_metadata.name;
+          } else if (userData.user_metadata && userData.user_metadata.full_name) {
+            userName = userData.user_metadata.full_name;
+          }
+          
           setUser({
             id: userData.id,
             email: userData.email || '',
-            name: userData.email?.split('@')[0] || '',
+            name: userName,
           });
         }
       } catch (error) {
@@ -62,10 +72,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_IN' && session) {
+          // Extract user name from metadata if available
+          let userName = session.user.email?.split('@')[0] || '';
+          
+          if (session.user.user_metadata && session.user.user_metadata.name) {
+            userName = session.user.user_metadata.name;
+          } else if (session.user.user_metadata && session.user.user_metadata.full_name) {
+            userName = session.user.user_metadata.full_name;
+          }
+          
           setUser({
             id: session.user.id,
             email: session.user.email || '',
-            name: session.user.email?.split('@')[0] || '',
+            name: userName,
+          });
+          
+          toast({
+            title: "Signed in successfully",
+            description: `Welcome${userName ? ', ' + userName : ''}!`,
           });
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
@@ -79,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [toast]);
 
   // Login function
   const login = async (email: string, password: string) => {
@@ -98,12 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       if (data.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          name: data.user.email?.split('@')[0] || '',
-        });
-        
+        // User is set by the auth state change listener
         toast({
           title: "Login successful",
           description: "Welcome back!",
@@ -171,12 +190,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       if (data.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          name: name,
-        });
-        
+        // User is set by the auth state change listener
         toast({
           title: "Registration successful",
           description: "Your account has been created",

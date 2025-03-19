@@ -7,11 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -36,12 +38,15 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
     try {
       await loginWithGoogle();
       // The user will be redirected to Google, and then back to the app
       // No need to navigate here as the OAuth flow handles the redirect
     } catch (error) {
       // Error is handled in the auth context
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -61,13 +66,16 @@ const Login = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full text-white border-gray-700 bg-gray-800 hover:bg-gray-700"
+                  className="w-full text-white border-gray-700 bg-gray-800 hover:bg-gray-700 flex items-center justify-center"
                   onClick={handleGoogleLogin}
+                  disabled={isGoogleLoading}
                 >
-                  <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-                    <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" fill="currentColor"/>
-                  </svg>
-                  Google
+                  {isGoogleLoading ? (
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <FcGoogle className="mr-2 h-5 w-5" />
+                  )}
+                  {isGoogleLoading ? "Connecting..." : "Continue with Google"}
                 </Button>
               </div>
               <div className="relative">
