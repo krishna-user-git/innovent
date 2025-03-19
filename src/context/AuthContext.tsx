@@ -145,15 +145,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Get the current URL's origin for the redirect
+      const redirectTo = `${window.location.origin}/events`;
+      console.log("Redirecting to:", redirectTo);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/events`,
+          redirectTo: redirectTo,
+          // Ensure we're using the correct callback URL
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
       
       if (error) throw error;
       
+      console.log("OAuth response:", data);
       // The user will be redirected to Google for authentication
       // The state will be updated by the auth state change listener
       // when they return to the app
