@@ -146,7 +146,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
       
       // Get the current URL's origin for the redirect
-      const redirectTo = `${window.location.origin}/events`;
+      const redirectTo = `https://soqrqcsyrcsbfgjgwjcm.supabase.co/events`;
       console.log("Redirecting to:", redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
