@@ -48,7 +48,7 @@ export const Hero = () => {
                 <>
                   <Button asChild size="lg" className="gap-1 bg-gold text-black hover:bg-gold/90">
                     <Link to="/register">
-                      Get Started <ArrowRight className="h-4 w-4" />
+                      Let's Go <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="border-gold text-gold hover:bg-gold/10">
