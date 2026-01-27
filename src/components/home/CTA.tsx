@@ -18,7 +18,7 @@ export const CTA = () => {
           </div>
           <div className="pt-4">
             <Button asChild size="lg" className="font-medium">
-              <Link to="/create-event">Get Started <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/create-event">Let's Go <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
