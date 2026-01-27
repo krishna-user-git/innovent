@@ -49,7 +49,6 @@ export const Testimonials = () => {
                 />
                 <div>
                   <h4 className="font-semibold text-white">{testimonial.author}</h4>
-                  <p className="text-sm text-gray-500">{testimonial.title}</p>
                 </div>
               </div>
             </div>
