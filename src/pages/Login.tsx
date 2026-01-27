@@ -1,11 +1,10 @@
-
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 
@@ -18,10 +17,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Redirect if already logged in
-  if (isAuthenticated) {
-    navigate("/events");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/events", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
