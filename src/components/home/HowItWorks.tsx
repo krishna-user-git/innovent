@@ -71,7 +71,7 @@ export const HowItWorks = () => {
         </div>
         <div className="flex justify-center mt-12">
           <Button asChild size="lg" className="bg-gold text-black hover:bg-gold/90">
-            <Link to="/how-it-works">Learn More <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/how-it-works">Know More <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
       </div>
