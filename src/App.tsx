@@ -17,6 +17,12 @@ import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
+import Teams from "./pages/Teams";
+import Projects from "./pages/Projects";
+import Leaderboard from "./pages/Leaderboard";
+import Notifications from "./pages/Notifications";
+import Resources from "./pages/Resources";
+import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -53,33 +59,19 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
 
             {/* Protected routes */}
-            <Route path="/events" element={
-              <ProtectedRoute>
-                <Events />
-              </ProtectedRoute>
-            } />
-            <Route path="/events/:id" element={
-              <ProtectedRoute>
-                <EventDetails />
-              </ProtectedRoute>
-            } />
-            <Route path="/create-event" element={
-              <ProtectedRoute>
-                <CreateEvent />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Dashboard /> {/* Temporarily use Dashboard for profile until we create a specific page */}
-              </ProtectedRoute>
-            } />
+            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+            <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+            <Route path="/create-event" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
+            <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
