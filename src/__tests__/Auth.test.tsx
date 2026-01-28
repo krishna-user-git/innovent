@@ -5,4 +5,3 @@ describe("Auth dummy", () => {
     expect(true).toBe(true);
   });
 });
-
