@@ -25,6 +25,8 @@ import Resources from "./pages/Resources";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
+import MassiveUIComponent from "./components/ui/MassiveUIComponent";
+
 const queryClient = new QueryClient();
 
 // Protected route component that checks for authentication
